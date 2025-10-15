@@ -1,0 +1,17 @@
+server:
+  port: ${port}
+
+spring:
+  application:
+    name: product-service
+  datasource:
+    url: ${db_url}
+    username: ${db_user}
+    password: ${db_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+api:
+  key: ${api_key}
