@@ -1,0 +1,31 @@
+package com.product_service.exception;
+
+/**
+ * Manejo de error UnauthorizedException
+ * 
+ * @author Diego Alexander Villalba
+ * @since Octubre 2022
+ */
+public class UnauthorizedException extends RuntimeException {
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Atributos de la clase
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** Identificador de versión para la serialización de la clase. */
+	private static final long serialVersionUID = 3291911864156983554L;
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Métodos de la clase
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Constructor que permite enviar un mensaje personalizado de error.
+	 * 
+	 * @param detalle - Mensaje con el detalle del error.
+	 */
+	public UnauthorizedException(String detalle) {
+		super(detalle);
+	}
+	
+}
