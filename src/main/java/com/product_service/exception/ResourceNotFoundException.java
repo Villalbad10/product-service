@@ -1,0 +1,31 @@
+package com.product_service.exception;
+
+/**
+ * Manejo de error ResourceNotFoundException
+ * 
+ * @author Diego Alexander Villalba
+ * @since Octubre 2022
+ */
+public class ResourceNotFoundException extends RuntimeException {
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Atributos de la clase
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** Identificador de versión para la serialización de la clase. */
+	private static final long serialVersionUID = -4370503157548803221L;
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Métodos de la clase
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Constructor que permite enviar un mensaje personalizado de error.
+	 * 
+	 * @param message - Mensaje con el detalle del error.
+	 */
+	public ResourceNotFoundException(String message) {
+		super(message);
+	}
+	
+}
