@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -26,6 +27,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
+@TestPropertySource(properties = {
+        "server.port=0",
+        "spring.datasource.url=jdbc:h2:mem:testdb",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "api.key=test-key"
+})
 class ProductControllerTest {
 
     @Autowired
@@ -66,6 +75,7 @@ class ProductControllerTest {
         Mockito.when(productService.crearProducto(any(Product.class))).thenReturn(created);
 
         mockMvc.perform(post("/api/v1/products/save")
+                        .header("X-API-KEY", "test-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(toCreate)))
                 .andExpect(status().isCreated())
@@ -79,7 +89,8 @@ class ProductControllerTest {
         Product product = buildProduct(2L);
         Mockito.when(productService.buscarProductoPorId(2L)).thenReturn(Optional.of(product));
 
-        mockMvc.perform(get("/api/v1/products/2"))
+        mockMvc.perform(get("/api/v1/products/2")
+                        .header("X-API-KEY", "test-key"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idProducto", is(2)))
                 .andExpect(jsonPath("$.nombre", is("Teclado")));
@@ -90,7 +101,8 @@ class ProductControllerTest {
     void obtenerProductoPorId_notFound() throws Exception {
         Mockito.when(productService.buscarProductoPorId(3L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/products/3"))
+        mockMvc.perform(get("/api/v1/products/3")
+                        .header("X-API-KEY", "test-key"))
                 .andExpect(status().isNotFound());
     }
 
@@ -100,7 +112,8 @@ class ProductControllerTest {
         Page<Product> page = new PageImpl<>(List.of(buildProduct(5L)), PageRequest.of(0, 10), 1);
         Mockito.when(productService.obtenerTodosLosProductos(any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/v1/products/list").param("page", "0").param("size", "10"))
+        mockMvc.perform(get("/api/v1/products/list").header("X-API-KEY", "test-key")
+                        .param("page", "0").param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].idProducto", is(5)));
     }
@@ -116,6 +129,7 @@ class ProductControllerTest {
         Mockito.when(productService.actualizarProducto(eq(9L), any(Product.class))).thenReturn(updated);
 
         mockMvc.perform(put("/api/v1/products/update/9")
+                        .header("X-API-KEY", "test-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
@@ -126,7 +140,8 @@ class ProductControllerTest {
     @Test
     @DisplayName("DELETE /delete/{id} retorna 204")
     void eliminarProducto_noContent() throws Exception {
-        mockMvc.perform(delete("/api/v1/products/delete/7"))
+        mockMvc.perform(delete("/api/v1/products/delete/7")
+                        .header("X-API-KEY", "test-key"))
                 .andExpect(status().isNoContent());
         Mockito.verify(productService).eliminarProducto(7L);
     }
