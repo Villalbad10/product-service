@@ -6,11 +6,13 @@ import com.product_service.model.Product;
 import com.product_service.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -24,6 +26,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
+@TestPropertySource(properties = {
+        "server.port=0",
+        "spring.datasource.url=jdbc:h2:mem:testdb",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "api.key=test-key"
+})
 class ApiExceptionHandlerTest {
 
     @Autowired
@@ -44,6 +54,7 @@ class ApiExceptionHandlerTest {
                 .build();
 
         mockMvc.perform(post("/api/v1/products/save")
+                        .header("X-API-KEY", "test-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
@@ -57,8 +68,9 @@ class ApiExceptionHandlerTest {
     void notFoundException_mappedTo404() throws Exception {
         Mockito.when(productService.buscarProductoPorId(100L)).thenThrow(new NotFoundException("No encontrado"));
 
-        mockMvc.perform(get("/api/v1/products/100"))
-                .andExpect(status().isNotFound())
+        mockMvc.perform(get("/api/v1/products/100")
+                        .header("X-API-KEY", "test-key")
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensaje[0]").value("No encontrado"))
                 .andExpect(jsonPath("$.path").value("/api/v1/products/100"));
     }
@@ -68,8 +80,9 @@ class ApiExceptionHandlerTest {
     void badRequestException_mappedTo400() throws Exception {
         Mockito.when(productService.buscarProductoPorId(0L)).thenThrow(new BadRequestException("ID inválido"));
 
-        mockMvc.perform(get("/api/v1/products/0"))
-                .andExpect(status().isBadRequest())
+        mockMvc.perform(get("/api/v1/products/0")
+                        .header("X-API-KEY", "test-key")
+                ).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje[0]").value("ID inválido"))
                 .andExpect(jsonPath("$.path").value("/api/v1/products/0"));
     }
