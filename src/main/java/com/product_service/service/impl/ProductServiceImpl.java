@@ -45,8 +45,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Product crearProducto(Product product) {
-        log.info("Iniciando creación de producto: {}", product.getNombre());
-        
+        //log.info("Iniciando creación de producto: {}", product.getNombre());
+
         // Validar que el producto no sea nulo
         if (product == null) {
             throw new BadRequestException("El producto no puede ser nulo");
