@@ -1,11 +1,10 @@
 package com.product_service.service;
 
 import com.product_service.model.Product;
+import com.product_service.dto.CreateProductRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,6 +26,17 @@ public interface ProductService {
      * @throws com.product_service.exception.BadRequestException si los datos del producto no son válidos
      */
     Product crearProducto(Product product);
+
+    /**
+     * Crea un nuevo producto en el sistema desde un DTO.
+     * Valida que no exista un producto con el mismo nombre.
+     * 
+     * @param createProductRequest Los datos del producto a crear
+     * @return El producto creado con su ID asignado
+     * @throws com.product_service.exception.ConflictException si ya existe un producto con el mismo nombre
+     * @throws com.product_service.exception.BadRequestException si los datos del producto no son válidos
+     */
+    Product crearProducto(CreateProductRequest createProductRequest);
 
     /**
      * Busca un producto por su ID.

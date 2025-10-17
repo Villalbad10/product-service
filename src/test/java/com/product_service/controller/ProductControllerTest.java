@@ -1,6 +1,7 @@
 package com.product_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.product_service.dto.CreateProductRequest;
 import com.product_service.model.Product;
 import com.product_service.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
@@ -59,7 +60,7 @@ class ProductControllerTest {
     @Test
     @DisplayName("POST /save crea producto y retorna 201")
     void crearProducto_returnsCreated() throws Exception {
-        Product toCreate = Product.builder()
+        CreateProductRequest toCreate = CreateProductRequest.builder()
                 .nombre("Mouse")
                 .precio(new BigDecimal("49.90"))
                 .descripcion("Gamer")
@@ -72,7 +73,7 @@ class ProductControllerTest {
                 .eliminado(false)
                 .build();
 
-        Mockito.when(productService.crearProducto(any(Product.class))).thenReturn(created);
+        Mockito.when(productService.crearProducto(any(CreateProductRequest.class))).thenReturn(created);
 
         mockMvc.perform(post("/api/v1/products/save")
                         .header("X-API-KEY", "test-key")
