@@ -1,12 +1,11 @@
 package com.product_service.service.impl;
 
 import com.product_service.exception.BadRequestException;
-import com.product_service.exception.ConflictException;
 import com.product_service.exception.NotFoundException;
 import com.product_service.model.Product;
+import com.product_service.dto.CreateProductRequest;
 import com.product_service.repository.ProductRepository;
 import com.product_service.service.ProductService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -72,6 +70,55 @@ public class ProductServiceImpl implements ProductService {
             return productoCreado;
         } catch (Exception e) {
             log.error("Error al crear el producto: {}", e.getMessage(), e);
+            throw new BadRequestException("Error interno al crear el producto: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Crea un nuevo producto en el sistema desde un DTO.
+     * Realiza validaciones de negocio y guarda el producto en la base de datos.
+     * 
+     * @param createProductRequest Los datos del producto a crear
+     * @return El producto creado con su ID asignado por la base de datos
+     * @throws BadRequestException si los datos del producto no son válidos
+     * @throws Exception si ocurre un error durante el guardado
+     */
+    @Override
+    @Transactional
+    public Product crearProducto(CreateProductRequest createProductRequest) {
+        // Validar que el DTO no sea nulo
+        if (createProductRequest == null) {
+            throw new BadRequestException("Los datos del producto no pueden ser nulos");
+        }
+
+        log.info("Iniciando creación de producto desde DTO: {}", createProductRequest.getNombre());
+
+        // Validar que el nombre no sea nulo o vacío
+        if (createProductRequest.getNombre() == null || createProductRequest.getNombre().trim().isEmpty()) {
+            throw new BadRequestException("El nombre del producto es obligatorio");
+        }
+
+        // Validar que el precio no sea nulo y sea positivo
+        if (createProductRequest.getPrecio() == null || createProductRequest.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("El precio del producto debe ser mayor a cero");
+        }
+
+        try {
+            // Crear el producto desde el DTO
+            Product product = Product.builder()
+                    .nombre(createProductRequest.getNombre().trim())
+                    .precio(createProductRequest.getPrecio())
+                    .descripcion(createProductRequest.getDescripcion() != null ? 
+                               createProductRequest.getDescripcion().trim() : null)
+                    .eliminado(false)
+                    .build();
+            
+            Product productoCreado = productRepository.save(product);
+            log.info("Producto creado exitosamente desde DTO con ID: {}", productoCreado.getIdProducto());
+            
+            return productoCreado;
+        } catch (Exception e) {
+            log.error("Error al crear el producto desde DTO: {}", e.getMessage(), e);
             throw new BadRequestException("Error interno al crear el producto: " + e.getMessage());
         }
     }

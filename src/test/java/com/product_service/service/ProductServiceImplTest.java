@@ -1,5 +1,6 @@
 package com.product_service.service;
 
+import com.product_service.dto.CreateProductRequest;
 import com.product_service.exception.BadRequestException;
 import com.product_service.exception.NotFoundException;
 import com.product_service.model.Product;
@@ -75,7 +76,7 @@ class ProductServiceImplTest {
     @Test
     @DisplayName("crearProducto: lanza BadRequest si producto es nulo")
     void crearProducto_nullProduct_throws() {
-        assertThatThrownBy(() -> productService.crearProducto(null))
+        assertThatThrownBy(() -> productService.crearProducto((Product) null))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("no puede ser nulo");
         verifyNoInteractions(productRepository);
@@ -101,6 +102,101 @@ class ProductServiceImplTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("precio del producto debe ser mayor a cero");
         verifyNoInteractions(productRepository);
+    }
+
+    // Tests para el nuevo método que acepta CreateProductRequest
+
+    private CreateProductRequest buildValidCreateProductRequest() {
+        return CreateProductRequest.builder()
+                .nombre("Laptop")
+                .precio(new BigDecimal("1500.00"))
+                .descripcion("Laptop para desarrollo")
+                .build();
+    }
+
+    @Test
+    @DisplayName("crearProducto(CreateProductRequest): crea producto correctamente desde DTO")
+    void crearProductoFromDTO_success() {
+        CreateProductRequest toCreate = buildValidCreateProductRequest();
+        Product saved = Product.builder()
+                .idProducto(10L)
+                .nombre(toCreate.getNombre())
+                .precio(toCreate.getPrecio())
+                .descripcion(toCreate.getDescripcion())
+                .eliminado(false)
+                .build();
+
+        when(productRepository.save(any(Product.class))).thenReturn(saved);
+
+        Product result = productService.crearProducto(toCreate);
+
+        assertThat(result.getIdProducto()).isEqualTo(10L);
+        assertThat(result.getNombre()).isEqualTo("Laptop");
+        assertThat(result.getEliminado()).isFalse();
+
+        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).save(captor.capture());
+        Product capturedProduct = captor.getValue();
+        assertThat(capturedProduct.getNombre()).isEqualTo("Laptop");
+        assertThat(capturedProduct.getPrecio()).isEqualTo(new BigDecimal("1500.00"));
+        assertThat(capturedProduct.getDescripcion()).isEqualTo("Laptop para desarrollo");
+        assertThat(capturedProduct.getEliminado()).isFalse();
+    }
+
+    @Test
+    @DisplayName("crearProducto(CreateProductRequest): lanza BadRequest si DTO es nulo")
+    void crearProductoFromDTO_nullDTO_throws() {
+        assertThatThrownBy(() -> productService.crearProducto((CreateProductRequest) null))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("no pueden ser nulos");
+        verifyNoInteractions(productRepository);
+    }
+
+    @Test
+    @DisplayName("crearProducto(CreateProductRequest): valida nombre requerido")
+    void crearProductoFromDTO_emptyName_throws() {
+        CreateProductRequest invalid = buildValidCreateProductRequest();
+        invalid.setNombre(" ");
+        assertThatThrownBy(() -> productService.crearProducto(invalid))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("nombre del producto es obligatorio");
+        verifyNoInteractions(productRepository);
+    }
+
+    @Test
+    @DisplayName("crearProducto(CreateProductRequest): valida precio positivo")
+    void crearProductoFromDTO_nonPositivePrice_throws() {
+        CreateProductRequest invalid = buildValidCreateProductRequest();
+        invalid.setPrecio(new BigDecimal("0"));
+        assertThatThrownBy(() -> productService.crearProducto(invalid))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("precio del producto debe ser mayor a cero");
+        verifyNoInteractions(productRepository);
+    }
+
+    @Test
+    @DisplayName("crearProducto(CreateProductRequest): maneja descripción nula correctamente")
+    void crearProductoFromDTO_nullDescription_success() {
+        CreateProductRequest toCreate = CreateProductRequest.builder()
+                .nombre("Mouse")
+                .precio(new BigDecimal("50.00"))
+                .descripcion(null)
+                .build();
+        Product saved = Product.builder()
+                .idProducto(11L)
+                .nombre("Mouse")
+                .precio(new BigDecimal("50.00"))
+                .descripcion(null)
+                .eliminado(false)
+                .build();
+
+        when(productRepository.save(any(Product.class))).thenReturn(saved);
+
+        Product result = productService.crearProducto(toCreate);
+
+        assertThat(result.getIdProducto()).isEqualTo(11L);
+        assertThat(result.getDescripcion()).isNull();
+        verify(productRepository).save(any(Product.class));
     }
 
     @Test

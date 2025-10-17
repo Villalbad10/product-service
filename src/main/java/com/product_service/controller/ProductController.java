@@ -1,6 +1,7 @@
 package com.product_service.controller;
 
 import com.product_service.model.Product;
+import com.product_service.dto.CreateProductRequest;
 import com.product_service.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,19 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Controlador REST para la gestión de productos.
@@ -43,7 +38,7 @@ public class ProductController {
     /**
      * Crea un nuevo producto en el sistema.
      * 
-     * @param product El producto a crear (validado automáticamente)
+     * @param createProductRequest Los datos del producto a crear (validado automáticamente)
      * @return ResponseEntity con el producto creado y código HTTP 201
      */
     @PostMapping("/save")
@@ -59,11 +54,11 @@ public class ProductController {
     })
     public ResponseEntity<Product> crearProducto(
             @Parameter(description = "Datos del producto a crear", required = true)
-            @Valid @RequestBody Product product) {
+            @Valid @RequestBody CreateProductRequest createProductRequest) {
         
-        log.info("Solicitud de creación de producto recibida: {}", product.getNombre());
+        log.info("Solicitud de creación de producto recibida: {}", createProductRequest.getNombre());
         
-        Product productoCreado = productService.crearProducto(product);
+        Product productoCreado = productService.crearProducto(createProductRequest);
         
         log.info("Producto creado exitosamente con ID: {}", productoCreado.getIdProducto());
         
