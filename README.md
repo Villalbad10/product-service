@@ -319,7 +319,7 @@ Durante el desarrollo de este proyecto se utilizaron las siguientes herramientas
 Para soporte técnico o consultas sobre el proyecto, contactar a:
 - **Desarrollador**: Diego Alexander Villalba
 - **Versión**: 1.0
-- **Última actualización**: 2024
+- **Última actualización**: 2025
 
 ## Licencia
 
