@@ -23,7 +23,7 @@ Product Service es un microservicio desarrollado en Spring Boot que proporciona 
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Villalbad10/product-service
    cd product-service
    ```
 
